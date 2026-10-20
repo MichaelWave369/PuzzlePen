@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node --test"
+    "test": "node --test && npm run verify",
+    "verify": "node scripts/verify_classic.mjs"
   },
   "dependencies": {
     "react": "^19.1.1",

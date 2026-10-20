@@ -37,6 +37,19 @@ def main():
             target = DEST / tail
             target.parent.mkdir(parents=True,exist_ok=True)
             target.write_bytes(z.read(member))
+    # Do not let the classic SW delete unrelated origin CacheStorage entries.
+    sw = DEST / 'service-worker.js'
+    original = sw.read_text(encoding='utf8')
+    if 'key !== CACHE;' in original:
+        # A service worker shares CacheStorage with the modern React shell.
+        patched = original.replace('key !== CACHE;', 'key !== CACHE && key.startsWith("puzzle-pen-eaa-");')
+        sw.write_text(patched, encoding='utf8')
+    else:
+        # The original uses the same expression without a trailing semicolon in its lambda.
+        patched = original.replace('key !== CACHE', 'key !== CACHE && key.startsWith("puzzle-pen-eaa-")')
+        if patched == original:
+            raise SystemExit('Unexpected upstream service-worker cache cleanup expression.')
+        sw.write_text(patched, encoding='utf8')
     print(f'Imported {len(safe)} classic runtime files into {DEST}')
     print('Now run npm run build, inspect dist/classic, and commit public/classic files.')
 

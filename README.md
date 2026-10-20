@@ -1,55 +1,54 @@
-# Puzzle Pen · React Revival R0
+# Puzzle Pen · React Revival R1
 
 **If we show it in the ad, you can play it.**
 
-Puzzle Pen was recovered from three owner-supplied archives. This repo begins a clean MIT-licensed, local-first React + Vite GitHub Pages edition without pretending that the full v2 runtime has already been ported.
+Puzzle Pen is an MIT-licensed, local-first React/Vite playground and a preservation home for an independently playable original game.
 
-## In this first pull request
+## Two editions
 
-- Responsive accessible bookshelf for the eight original activity books.
-- **18 playable, locally implemented sample puzzles**, selected from the archived content.
-- Real answer checking, hints, one-time solve ink, and local progress storage.
-- A runnable arcade claim with machine-checked **PASS/FAIL** and one reward per puzzle.
-- Backup export, validated preview-before-apply import, reset, and v2 puzzle-progress migration.
-- Automated Node tests and a GitHub Pages deployment workflow.
-- Link to the still-hosted v1.2.1 beta while v2 is migrated.
+1. **React Edition** is deployed at `/PuzzlePen/`: the modern responsive bookshelf with 18 playable samples, local ink, hints, audited sample claims, JSON backup, and accessibility-oriented controls.
+2. **Original Classic v2** belongs at `/PuzzlePen/classic/index.html`: the owner-recovered original HTML/JS application with all **144 standalone activities, 3 mystery cases, Puzzle Trails, Gatebreaker, the original ad contract engine, and its original save format**. Because the ZIP came from a conversation upload, its actual game assets must be staged in `public/classic` before they appear in a GitHub build. R1 introduces an honest availability-aware launcher, checks, and migration support without mislabeling the hosted v1.2.1 beta as v2.
 
-**Current limits:** This is NOT the complete 144-puzzle runtime. Canvas mazes, hidden pictures, three linked cases, and Gatebreaker are preserved in the supplied v2.0 archive but not imported into the React build yet. All source is local to this repo except an optional Google Fonts stylesheet, which falls back to system fonts offline. Browser persistence is per origin: Netlify and GitHub Pages do not automatically share localStorage.
+## Install the exact classic game (owner-supplied ZIP)
 
-## Run locally
+Get the original `Puzzle_Pen_Executable_Ad_Arcade_v2.0.zip` from your local recovery kit (SHA-256 `f286c2ecf5ce72f464c28e76dac9c5b7f593d861b71cb5c8a71c0e65e23360ec`). From the repo root:
 
-Node.js 22+:
+```sh
+python3 scripts/import_v2.py /path/to/Puzzle_Pen_Executable_Ad_Arcade_v2.0.zip
+npm install
+npm test
+npm run build
+git add public/classic
+git commit -m "feat: include preserved classic v2 engine"
+git push
+```
+
+The importer extracts only the fourteen `app/` runtime files; private continuity records from the ZIP are intentionally excluded. It scopes classic service-worker cache deletion to its own cache namespace. No third-party hosted data or build-time fetch is required. **To get the public classic link working, these game files must actually be present in the repository's main branch.** React v2 launcher automatically distinguishes a real installed engine from a missing path.
+
+## Data and progress
+
+- React uses `puzzlepen_react_r0`; classic uses `puzzle_pen_executable_ad_arcade_v2`.
+- R1 validates all 144 canonical puzzle IDs on import, so completion data for not-yet-ported puzzles is preserved.
+- **Classic and React are separate editions.** On the same GitHub Pages origin, the My Ink page offers a preview-before-apply read from the classic save. Imported classic ad claims are not verified or paid again in React.
+- Local browser storage is scoped to origin, not shared with the old Netlify beta. Use JSON export/import for cross-origin migration.
+- Export a backup before applying an import: it replaces the React save, rather than merging silently.
+- A React PASS is an audit of the sample mechanics, not a cryptographically tamperproof award.
+
+## Verify
 
 ```sh
 npm install
 npm test
-npm run dev
 npm run build
+node scripts/verify_classic.mjs
 ```
 
-Vite uses `base: '/PuzzlePen/'` for `https://michaelwave369.github.io/PuzzlePen/`. GitHub Pages must be enabled in repository Settings → Pages → Source: **GitHub Actions**. A successful workflow is required before calling the Pages URL live.
+When the classic source exists, the verifier checks that its fourteen assets are present, all nine JavaScript scripts parse under Node, and its canonical data has **144 puzzles / 3 cases / 8 books**. Without the game files, it explicitly reports `not staged` and exits successfully, because React must remain independently deployable.
 
-## Restore the actual full v2 runtime
+GitHub Pages: repository Settings → Pages → Source: **GitHub Actions**. `vite.config.js` uses the fixed `/PuzzlePen/` base. Classic v2 uses path-relative files and a separately scoped service worker.
 
-The owner supplied `Puzzle_Pen_Executable_Ad_Arcade_v2.0.zip` (SHA-256: `f286c2ecf5ce72f464c28e76dac9c5b7f593d861b71cb5c8a71c0e65e23360ec`). It contains the 144-activity game, Gatebreaker, contracts, ledger, offline assets, and source docs. Keep the archive outside the Git repo, then:
+## Roadmap
 
-```sh
-python3 scripts/import_v2.py /path/to/Puzzle_Pen_Executable_Ad_Arcade_v2.0.zip
-npm run build
-```
+After staging the complete classic runtime: screenshot and keyboard/touch smoke tests; preserve v2 audit contracts and progression; migrate the content engines to React one-by-one with parity tests. Do not claim real-device or screen-reader certification from static checks alone.
 
-This copies the verified classic static game to `public/classic/` (served at `/PuzzlePen/classic/`), leaving its classic JS script order unchanged. This is an explicit *next integration step*, not part of R0. Test the classic engine in a real browser and manually commit imported assets in a follow-up PR. Do not ship the multi-stage internal continuity receipts without reviewing publication rights/scope.
-
-## Privacy and integrity
-
-- No user account, ads, tracker, backend or analytics.
-- `puzzlepen_react_r0` holds local progress; export a backup before changing domains.
-- Legacy v2 imports only known puzzle IDs and numeric ink, **not** claimed verified audit receipts.
-- Arcade PASS requires the disclosed challenge mechanics. Duplicate reward grants are blocked for a given puzzle ID. A canceled run never grants rewards.
-- Accessibility helpers are present; no formal WCAG or real-device certification is claimed.
-
-## Next
-
-Import the verified classic v2 runtime, then incrementally replace its DOM engine with React adapters while preserving exact puzzle mechanics, its receipts and the safe legacy-migration path.
-
-MIT licensed. See `LICENSE`.
+License: MIT. The original archive was provided by the owner; review rights before redistributing any third-party contributions.
